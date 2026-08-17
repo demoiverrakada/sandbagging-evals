@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+results/*.csv
+results/*.json
+results/*.png
+!results/.gitkeep
+*.pt
+*.safetensors
+.ipynb_checkpoints/
