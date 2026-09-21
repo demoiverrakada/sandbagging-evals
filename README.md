@@ -1,124 +1,143 @@
 # Sandbagging Detection: Black-box vs White-box
 
-Comparing three sandbagging detectors across the access ladder — from
-API-only black-box to full-internals white-box — on prompted
-sandbagging in Qwen2.5-3B-Instruct.
+An exploratory comparison of detector families across the access ladder:
+API-only behavioral inconsistency, weight-noise perturbation, and
+activation-based linear probes.
 
-Sandbagging is when a model strategically underperforms on a capability
-evaluation. It breaks the core assumption of evals: that a score
-reflects true capability. This project asks which detection methods
-actually work, and where each one breaks.
+**Status:** exploratory pilot. The initial runs establish useful failure modes,
+but they do not validate a deployment detector or a population 1% false-positive
+operating point. The original probe result used test-set layer selection and is
+retained only as a labelled legacy artifact; corrected code now selects the
+layer on a separate validation split.
 
-See [PROJECT.md](PROJECT.md) for the full specification, hypotheses,
-and references.
+## Research question
 
-## Key results
+How does sandbagging detection change as an auditor moves from black-box access
+to model weights and finally to activations—and which apparent signals survive
+confounds, distribution shift, and strict operating points?
 
-| Detector | Access level | AUROC (blatant) | TPR @ 1% FPR | Notes |
-|---|---|---:|---:|---|
-| Self-consistency | Black-box (API only) | 0.79 | 0.00 | Detects blatant but useless at strict thresholds |
-| Noise injection | Grey-box (weights) | — | — | Anomalous accuracy rise under noise confirms sandbagging signal |
-| Linear probe | White-box (activations) | ~1.00 | ~1.00 | Near-perfect, but likely a prompt-identity confound (see below) |
+The current study uses prompted underperformance in Qwen2.5-3B-Instruct on a
+WMDP-Bio slice. Prompted underperformance is a controllable pilot condition, not
+a realistic autonomous sandbagging organism.
 
-**Elicitation gap:** neutral accuracy 66%, blatant sandbagging 28% on
-WMDP-Bio (Qwen2.5-3B-Instruct). The gap confirms the model follows
-the sandbagging instruction.
+## Initial results
 
-**Probe caveat:** the linear probe achieves near-perfect separation, but
-the training labels (neutral vs sandbagging) are perfectly correlated
-with the system prompt. The probe may be detecting which prompt was
-used rather than an internal "I am sandbagging" state. This is flagged
-as a likely prompt-identity confound — the same issue noted in recent
-literature on deception probes.
+| Detector | Access | Initial result | Interpretation |
+|---|---|---|---|
+| Option-permutation inconsistency | API only | AUROC 0.762 blatant; 0.791 target; empirical TPR 0 at 1% FPR | Aggregate discrimination in an `n=100` pilot; low-FPR performance is not validated |
+| Weight-noise sweep | Weights | Sandbagging-condition accuracy rose at high noise | Consistent with partial disruption, but based on three seeds with substantial high-noise variance |
+| Linear activation probe | Activations and labels | Legacy AUROC near 1.0 | Insufficient evidence: prompt identity determines the label and the legacy layer was selected on test AUROC |
 
-## Detectors
+Neutral WMDP-Bio accuracy was 66%, blatant prompted sandbagging 23%, and
+target-strategy prompted sandbagging 36%. This establishes that the model
+followed the suppression instructions in this setup.
 
-### 1. Elicitation gap (`scripts/run_gap.py`)
+## Validity limits
 
-Measures accuracy under neutral, blatant, weak-persona, and
-score-targeted sandbagging prompts on WMDP-Bio and MMLU.
+### Low false-positive rates
 
-### 2. Noise injection (`scripts/run_noise.py`)
+The black-box run contains 100 neutral scores. Even zero observed false
+positives in an independently evaluated sample of that size leaves a one-sided
+95% upper bound of approximately 2.95% on the false-positive rate. The reported
+empirical `TPR@1%FPR` is therefore not evidence of a validated population 1%
+FPR operating point.
 
-Adds calibrated Gaussian noise to transformer weight matrices (Tice et
-al., arXiv 2412.01784). An honest model degrades monotonically; a
-sandbagger shows anomalous accuracy recovery as noise disrupts the
-sandbagging strategy.
+### Probe confounding
 
-### 3. Black-box self-consistency (`scripts/run_blackbox.py`)
+The neutral and sandbagging labels are perfectly correlated with different
+system prompts. A linear probe can therefore succeed by detecting prompt
+identity rather than an internal strategic-deception state.
 
-Shuffles answer options across multiple presentations of the same
-question. A consistent model picks the same underlying answer
-regardless of option order; a sandbagger is more inconsistent. Reports
-AUROC and TPR@1%FPR.
+The legacy implementation also selected its best layer using test AUROC. The
+corrected implementation trains on one split, selects the layer on validation
+data, and evaluates exactly once on untouched test data.
 
-### 4. Linear activation probe (`scripts/run_probe.py`)
+### Noise interpretation
 
-Caches last-token residual-stream activations per layer, trains a
-logistic-regression probe to separate honest from sandbagging
-activations. Reports in-distribution AUROC and cross-strategy
-generalization.
+The initial noise curve is consistent with disruption of prompted
+underperformance, but it is not independently diagnostic of sandbagging. More
+seeds, uncertainty on contrasts, and non-sandbagging controls are required.
 
-## Setup
+## Reproduce local checks
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+pytest -q
 ```
 
-First run downloads Qwen2.5-3B-Instruct (~6 GB) from HuggingFace.
+The first model run downloads Qwen2.5-3B-Instruct.
 
-## Reproduce
+## Initial pilot commands
 
 ```bash
-# 1. Elicitation gap
 python scripts/run_gap.py --dataset wmdp-bio --n 200
-python scripts/run_gap.py --dataset mmlu     --n 200
-
-# 2. Noise injection sweep
+python scripts/run_gap.py --dataset mmlu --n 200
 python scripts/run_noise.py --dataset wmdp-bio --n 100 --seeds 3
-
-# 3. Black-box consistency
-python scripts/run_blackbox.py --dataset wmdp-bio --n 100 --perms 6
-
-# 4. Linear probe
-python scripts/run_probe.py --dataset wmdp-bio --n 200
 ```
 
-Plotting scripts (`plot_gap.py`, `plot_noise.py`, `plot_probe.py`) are
-in `scripts/`.
+## Recommended corrected reruns
 
-## Layout
+```bash
+# Paired-bootstrap AUROC interval and explicit low-FPR diagnostics.
+python scripts/run_blackbox.py --dataset wmdp-bio --n 1000 --perms 6
 
+# Train/validation/test separation for probe training and layer selection.
+python scripts/run_probe.py --dataset wmdp-bio --n 1200
+
+# Only accepts the corrected result schema.
+python scripts/plot_probe.py
 ```
+
+These larger commands are recommended next experiments, not completed results.
+See [`results/README.md`](results/README.md) before using an existing artifact.
+
+## Repository layout
+
+```text
 src/sbe/
-  config.py        device/dtype selection, defaults
-  model.py         load model + tokenizer, letter-token ids
-  data.py          WMDP / MMLU -> unified MCQ items
-  prompts.py       neutral + sandbagging system prompts, MCQ formatting
-  mcq_eval.py      logit-based multiple-choice eval
-  blackbox.py      option-permutation consistency detector
-  noise.py         Gaussian weight-noise injection
-  activations.py   residual-stream activation caching for probes
+  blackbox.py     option-permutation detector
+  metrics.py      splits, uncertainty, and low-FPR diagnostics
+  activations.py  residual-stream extraction
+  noise.py        weight perturbations
+  prompts.py      neutral, prompted, and adaptive conditions
 scripts/
-  run_gap.py       elicitation gap measurement
-  run_noise.py     noise injection sweep
-  run_blackbox.py  black-box consistency detector
-  run_probe.py     linear activation probe
-  plot_gap.py      gap visualization
-  plot_noise.py    noise sweep visualization
-  plot_probe.py    probe AUROC visualization
+  run_gap.py
+  run_noise.py
+  run_blackbox.py
+  run_probe.py
+  run_adaptive.py
+tests/
+  test_metrics.py
+results/
+  README.md
 ```
 
-## Running on Kaggle / Colab
+## Supported claims
 
-Clone the repo, `pip install -r requirements.txt`, and run any script.
-CUDA is picked up automatically. Use Kaggle for the heavy runs
-(activation caching, noise sweeps).
+- Prompted conditions produced a large capability-suppression gap in this model
+  and benchmark slice.
+- Option-permutation inconsistency showed aggregate discrimination in the
+  initial 100-question pilot but no empirical sensitivity at the requested 1%
+  FPR threshold.
+- The near-perfect legacy probe result is insufficient evidence of strategic
+  deception detection.
+
+## Not supported
+
+- A deployment-ready sandbagging detector.
+- A validated 1% population false-positive operating point.
+- Detection of autonomous or covert strategic deception.
+- Generalization beyond one prompted model, one dangerous-capability benchmark
+  slice, and the tested strategies.
 
 ## References
 
-- van der Weij et al., *AI Sandbagging*, arXiv 2406.07358
-- Tice et al., *Noise Injection Reveals Hidden Capabilities*, arXiv 2412.01784
-- Goldowsky-Dill et al. (Apollo), *Detecting Strategic Deception Using Linear Probes*, arXiv 2502.03407
-- Greenblatt et al., *Stress-Testing Capability Elicitation with Password-Locked Models*, arXiv 2405.19550
+- van der Weij et al., *AI Sandbagging*, arXiv:2406.07358.
+- Tice et al., *Noise Injection Reveals Hidden Capabilities of Sandbagging
+  Language Models*, arXiv:2412.01784.
+- Goldowsky-Dill et al., *Detecting Strategic Deception Using Linear Probes*,
+  arXiv:2502.03407.
+- Greenblatt et al., *Stress-Testing Capability Elicitation with
+  Password-Locked Models*, arXiv:2405.19550.

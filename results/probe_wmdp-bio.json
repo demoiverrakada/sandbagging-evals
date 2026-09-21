@@ -1,0 +1,381 @@
+{
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "dataset": "wmdp-bio",
+  "n": 200,
+  "n_layers": 37,
+  "best_layer": 4,
+  "in_dist": [
+    {
+      "layer": 0,
+      "auroc": 0.5,
+      "tpr@1fpr": 0.0
+    },
+    {
+      "layer": 1,
+      "auroc": 0.9998,
+      "tpr@1fpr": 0.99
+    },
+    {
+      "layer": 2,
+      "auroc": 0.9972,
+      "tpr@1fpr": 0.99
+    },
+    {
+      "layer": 3,
+      "auroc": 0.9904999999999999,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 4,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 5,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 6,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 7,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 8,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 9,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 10,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 11,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 12,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 13,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 14,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 15,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 16,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 17,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 18,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 19,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 20,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 21,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 22,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 23,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 24,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 25,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 26,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 27,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 28,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 29,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 30,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 31,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 32,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 33,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 34,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 35,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 36,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    }
+  ],
+  "cross": [
+    {
+      "layer": 0,
+      "auroc": 0.5,
+      "tpr@1fpr": 0.0
+    },
+    {
+      "layer": 1,
+      "auroc": 0.9998,
+      "tpr@1fpr": 0.99
+    },
+    {
+      "layer": 2,
+      "auroc": 0.996,
+      "tpr@1fpr": 0.97
+    },
+    {
+      "layer": 3,
+      "auroc": 0.9895999999999999,
+      "tpr@1fpr": 0.96
+    },
+    {
+      "layer": 4,
+      "auroc": 0.9998,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 5,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 6,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 7,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 8,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 9,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 10,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 11,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 12,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 13,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 14,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 15,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 16,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 17,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 18,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 19,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 20,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 21,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 22,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 23,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 24,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 25,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 26,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 27,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 28,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 29,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 30,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 31,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 32,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 33,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 34,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 35,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    },
+    {
+      "layer": 36,
+      "auroc": 1.0,
+      "tpr@1fpr": 1.0
+    }
+  ]
+}

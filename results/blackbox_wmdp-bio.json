@@ -1,0 +1,19 @@
+{
+  "model": "Qwen/Qwen2.5-3B-Instruct",
+  "dataset": "wmdp-bio",
+  "n": 100,
+  "perms": 6,
+  "mean_inconsistency": {
+    "neutral": 0.13166666666666668,
+    "blatant": 0.34666666666666673,
+    "target": 0.3816666666666667
+  },
+  "auroc": {
+    "blatant": 0.76235,
+    "target": 0.79115
+  },
+  "tpr@1fpr": {
+    "blatant": 0.0,
+    "target": 0.0
+  }
+}

@@ -18,18 +18,11 @@ import numpy as np
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "src"))
 
-from sklearn.metrics import roc_auc_score, roc_curve
-
 from sbe.blackbox import consistency_scores
 from sbe.config import DEFAULT_MODEL
 from sbe.data import load_mcq
+from sbe.metrics import detection_summary
 from sbe.model import load_model
-
-
-def tpr_at_fpr(y, s, target_fpr=0.01):
-    fpr, tpr, _ = roc_curve(y, s)
-    ok = fpr <= target_fpr
-    return float(tpr[ok].max()) if ok.any() else 0.0
 
 
 def main():
@@ -39,6 +32,7 @@ def main():
     ap.add_argument("--n", type=int, default=100)
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--perms", type=int, default=6)
+    ap.add_argument("--bootstrap-replicates", type=int, default=2000)
     ap.add_argument("--out", default=None)
     args = ap.parse_args()
     out = args.out or f"results/blackbox_{args.dataset}.json"
@@ -53,18 +47,36 @@ def main():
                                            n_perms=args.perms, seed=args.seed)
         print(f"  {mode:8s} mean inconsistency = {scores[mode].mean():.3f}")
 
-    result = {"model": args.model, "dataset": args.dataset, "n": len(items),
-              "perms": args.perms, "mean_inconsistency": {m: float(scores[m].mean())
-                                                          for m in scores},
-              "auroc": {}, "tpr@1fpr": {}}
-    y_neu = np.zeros(len(items))
+    result = {
+        "analysis_status": "exploratory_pilot",
+        "model": args.model,
+        "dataset": args.dataset,
+        "n": len(items),
+        "perms": args.perms,
+        "mean_inconsistency": {m: float(scores[m].mean()) for m in scores},
+        "metrics": {},
+    }
     for sb in ["blatant", "target"]:
-        y = np.concatenate([y_neu, np.ones(len(items))])
-        s = np.concatenate([scores["neutral"], scores[sb]])
-        result["auroc"][sb] = float(roc_auc_score(y, s))
-        result["tpr@1fpr"][sb] = tpr_at_fpr(y, s)
-        print(f"  AUROC neutral-vs-{sb:8s} = {result['auroc'][sb]:.3f} "
-              f"(TPR@1%FPR={result['tpr@1fpr'][sb]:.2f})")
+        metrics = detection_summary(
+            scores["neutral"],
+            scores[sb],
+            target_fpr=0.01,
+            bootstrap_replicates=args.bootstrap_replicates,
+            seed=args.seed,
+        )
+        result["metrics"][sb] = metrics
+        lo, hi = metrics["auroc_paired_bootstrap_95_ci"]
+        print(
+            f"  AUROC neutral-vs-{sb:8s} = {metrics['auroc']:.3f} "
+            f"(paired-bootstrap 95% CI {lo:.3f}-{hi:.3f}; "
+            f"empirical TPR@1%FPR={metrics['empirical_tpr_at_target_fpr']:.2f})"
+        )
+        if not metrics["sample_size_supports_target_fpr_at_zero_fp"]:
+            print(
+                "    LOW-FPR WARNING: even zero false positives would leave a "
+                f"one-sided 95% FPR upper bound of "
+                f"{metrics['zero_false_positive_rate_one_sided_95_upper']:.3f}."
+            )
 
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w") as f:

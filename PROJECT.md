@@ -18,20 +18,21 @@ Story: the strongest detector (probe) needs the most access + labeled examples �
 what a third-party auditor is least likely to have. Does the cheap black-box method close
 the gap?
 
-## Hypotheses (state up front)
+## Original hypotheses
 
 - **H1** Probe wins on AUROC when tested in-distribution.
 - **H2** Probe advantage collapses on *unseen* sandbagging strategies; noise injection,
   being mechanism-based, degrades more gracefully.
 - **H3** Self-consistency is near-useless against a competent sandbagger.
 
-## Scope (deliberately small so it ships)
+## Initial scope
 
 - **Model:** Qwen2.5-3B-Instruct, bf16/fp16 (open weights, no gating). Stretch: Qwen2.5-7B.
 - **Induction:** prompted sandbagging (v1). Stretch: LoRA password-lock.
 - **Benchmark:** WMDP subset (dangerous-capability signal) + MMLU control.
 - **Detectors:** self-consistency (black-box), noise injection (grey-box), linear probe (white-box).
-- **Metrics:** AUROC + TPR@1%FPR (matches Apollo, so we're directly comparable).
+- **Metrics:** AUROC plus an exploratory empirical TPR at 1% FPR. The initial
+  sample is not large enough to validate a population 1% FPR operating point.
 - **Novel deliverable:** a failure-mode grid — each detector x {blatant, subtle, score-targeted, unseen-strategy}.
 
 ## Success criteria (honest)
@@ -39,12 +40,19 @@ the gap?
 Succeeds even if every detector fails: "here is the regime where the field's best
 sandbagging detectors break" is a real result. Not gambling on a positive outcome.
 
-## Milestones (~1 month part-time)
+## Status and next milestone
 
-1. **Wk 1** — reproduce prompted sandbagging on WMDP; confirm the elicitation gap. *(first plot)*  ← WE ARE HERE
-2. **Wk 2** — noise-injection detector (fork SandbagDetect); reproduce "improves under noise".
-3. **Wk 3** — linear probe (fork Apollo deception-detection); AUROC in-distribution.
-4. **Wk 4** — failure-mode grid + honest writeup with limitations.
+The initial elicitation-gap, noise, option-permutation, and probe runs are
+complete as an exploratory pilot. They exposed two validity problems:
+
+1. the legacy probe selected its layer using test AUROC;
+2. the 100-negative black-box sample cannot substantiate a 1% population FPR.
+
+The code now uses train/validation/test separation, paired-bootstrap AUROC
+intervals, and explicit low-FPR sample-size diagnostics. The next milestone is
+to run those corrected protocols at the larger sample sizes documented in
+`results/README.md`, then freeze a matched-prompt design that breaks the
+correlation between system-prompt identity and detector label.
 
 ## Compute plan
 
