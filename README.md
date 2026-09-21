@@ -28,8 +28,9 @@ a realistic autonomous sandbagging organism.
 | Weight-noise sweep | Weights | Sandbagging-condition accuracy rose at high noise | Consistent with partial disruption, but based on three seeds with substantial high-noise variance |
 | Linear activation probe | Activations and labels | Legacy AUROC near 1.0 | Insufficient evidence: prompt identity determines the label and the legacy layer was selected on test AUROC |
 
-Neutral WMDP-Bio accuracy was 66%, blatant prompted sandbagging 23%, and
-target-strategy prompted sandbagging 36%. This establishes that the model
+On a dedicated 200-item WMDP-Bio run, accuracy fell from 66% under the neutral
+prompt to 27.5% under blatant prompted sandbagging and 40.5% under the target
+strategy (`results/gap_wmdp-bio.json`). This establishes that the model
 followed the suppression instructions in this setup.
 
 ## Validity limits
@@ -53,6 +54,11 @@ corrected implementation trains on one split, selects the layer on validation
 data, and evaluates exactly once on untouched test data.
 
 ### Noise interpretation
+
+The noise sweep uses a separate 100-item subset (`results/noise_wmdp-bio.json`).
+Its zero-noise baseline accuracies were 66% neutral, 23% blatant, and 36%
+target; these are the reference points for that sweep only, not the headline
+elicitation gap.
 
 The initial noise curve is consistent with disruption of prompted
 underperformance, but it is not independently diagnostic of sandbagging. More
