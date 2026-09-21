@@ -15,10 +15,14 @@ def pick_device() -> str:
 
 
 def pick_dtype(device: str) -> "torch.dtype":
-    # bf16 is cleanest for weight-noise injection but MPS support is patchy,
-    # so we use fp16 on MPS and bf16 on CUDA.
+    # bf16 is cleanest for weight-noise injection but is NOT natively supported on
+    # Kaggle/Colab T4 or P100 GPUs (sm_75/sm_60) -> fall back to fp16 there. MPS also
+    # uses fp16. Only use bf16 when the CUDA device actually supports it (A100/L4/etc.).
     if device == "cuda":
-        return torch.bfloat16
+        try:
+            return torch.bfloat16 if torch.cuda.is_bf16_supported() else torch.float16
+        except Exception:
+            return torch.float16
     if device == "mps":
         return torch.float16
     return torch.float32
